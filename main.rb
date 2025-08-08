@@ -1,5 +1,5 @@
 =begin
-Ultra Minimal: Ultra minimal markdown blog template with Ruby, Pandoc and Nix
+Minblog: Minimal static markdown blog generator written with Ruby and Nix
 =end
 
 require 'kramdown'
@@ -69,23 +69,6 @@ end
 listener.start
 
 # Custom File Handler to enforce serving rules
-=begin
-class CustomFileHandler < WEBrick::HTTPServlet::FileHandler
-  def do_GET(req, res)
-    # Check if the path is not root and has no extension
-    if req.path != '/' && File.extname(req.path).empty?
-      html_path = req.path + '.html'
-      puts "Serving #{html_path}"
-      full_path = File.join(@root, html_path[1..-1]) # Construct full file path
-      if File.exist?(full_path)
-        req.path = html_path # Modify request path to serve HTML file
-      end
-    end
-    # Let the superclass handle the request with the (possibly modified) path
-    super
-  end
-end
-=end
 class CustomFileHandler < WEBrick::HTTPServlet::FileHandler
   def do_GET(req, res)
     begin
