@@ -5,5 +5,5 @@
 - `nix develop | ./result/bin/serve`
 
 ### TODOS
-- [ ] Add /posts page
+- [x] Add /posts page
 - [ ] Add Garamond font, favicon, tailwindcss, etc.

@@ -50,10 +50,35 @@ def delete_corresponding_html(md_file, dest_dir)
   File.delete(html_file) if File.exist?(html_file)
 end
 
+def generate_posts_page(source_dir, dest_dir)
+  posts_data = []
+
+  Dir.glob(File.join(source_dir, '*.md')).each do |md_file|
+    metadata, _ = parse_md_file(md_file)
+    posts_data.push({
+      title: metadata['title'] || 'Untitled',
+      date: metadata['date'] || 'No date',
+      link: File.basename(md_file, '.md')
+    })
+  end
+
+  # Sort by date
+  posts_data.sort_by { |post_data| [post_data['date']] }
+
+  template = ERB.new(File.read('posts.html'))
+  rendered_html = template.result(binding)
+  
+  html_file = File.join(dest_dir, 'posts.html')
+  File.write(html_file, rendered_html)
+end
+
 # Perform initial conversion of all Markdown files
 Dir.glob(File.join(source_dir, '*.md')).each do |md_file|
   convert_single_md_to_html(md_file, dest_dir)
 end
+
+# Perform initial generation of posts page
+generate_posts_page(source_dir, dest_dir)
 
 # Set up listener to monitor the 'blog' directory for changes to .md files
 listener = Listen.to(source_dir, only: /\.md$/) do |modified, added, removed|
@@ -62,6 +87,11 @@ listener = Listen.to(source_dir, only: /\.md$/) do |modified, added, removed|
   end
   removed.each do |file|
     delete_corresponding_html(file, dest_dir)
+  end
+
+  # Update/generate posts page
+  if added.size > 0 || removed.size > 0
+    generate_posts_page(source_dir, dest_dir)
   end
 end
 
